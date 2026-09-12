@@ -1,0 +1,91 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pagemark"
+dynamic = ["version"]
+description = "Local-first PDF-to-Markdown converter using vision-language models"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Utsha Saha" }]
+maintainers = [{ name = "Glichin" }]
+keywords = ["pdf", "markdown", "ocr", "vlm", "vision-language-model", "document-conversion"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing :: Markup :: Markdown",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pypdfium2>=4",
+    "pillow>=10",
+    "langchain-openai>=1.0,<2",
+    "pydantic>=2",
+    "markdown-it-py>=3",
+]
+
+[project.optional-dependencies]
+cli = ["typer>=0.9", "rich>=13"]
+eval = ["rapidfuzz>=3", "datasets>=2"]
+all = ["pagemark[cli,eval]"]
+
+[project.scripts]
+pagemark = "pagemark.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/uts58/pagemark"
+Repository = "https://github.com/uts58/pagemark"
+Issues = "https://github.com/uts58/pagemark/issues"
+
+[tool.hatch.version]
+path = "src/pagemark/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+only-include = ["src", "README.md", "LICENSE"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pagemark"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "fpdf2>=2.7",
+    # mirrors the cli extra so mypy can type-check cli.py on a bare `uv sync`
+    "typer>=0.9",
+    "rich>=13",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 99
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["B008"]
+
+[tool.mypy]
+strict = true
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["pypdfium2.*", "fpdf.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+markers = ["integration: requires live endpoints"]
+testpaths = ["tests"]
