@@ -29,6 +29,19 @@ pip install pagemark            # library only
 pip install "pagemark[cli]"     # with CLI
 ```
 
+With [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv add pagemark                 # add to your project
+uv add "pagemark[cli]"          # with CLI
+
+uv tool install "pagemark[cli]" # standalone CLI, no project needed
+uvx --from "pagemark[cli]" pagemark doctor --help  # run it without installing
+```
+
+The `--from` is needed for the `uvx` form: plain `uvx pagemark` installs the
+package without the `cli` extra, and the CLI exits telling you to add it.
+
 ## Quick start
 
 ```python
