@@ -7,7 +7,7 @@ import logging
 from pagemark.client import Pagemark as Pagemark
 from pagemark.models import Asset, Block, BlockType, Document, Page, PageSource, TokenUsage
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __all__ = [
     "Asset",
     "Block",
