@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+      - run: uv sync --extra cli
+      - name: ruff check
+        run: uv run python -m ruff check src/ tests/
+      - name: ruff format
+        run: uv run python -m ruff format --check src/ tests/
+      - name: mypy
+        run: uv run python -m mypy src/
+
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          - os: windows-latest
+            python-version: "3.12"
+          - os: macos-latest
+            python-version: "3.12"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync --extra cli
+      # Unit tests need no network and no GPU; integration tests stay opt-in.
+      - name: pytest
+        run: uv run python -m pytest -q -m "not integration"
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+      - run: uv build
+      - name: twine check
+        run: uv run --with twine python -m twine check dist/*
+      # Prove the sdist is self-contained: build a wheel from it and run the
+      # suite against the installed package rather than against src/.
+      - name: test the sdist
+        run: |
+          uv venv /tmp/sdist-check
+          VIRTUAL_ENV=/tmp/sdist-check uv pip install "$(echo dist/*.tar.gz)[cli]" pytest pytest-asyncio fpdf2
+          tar -xzf dist/*.tar.gz -C /tmp
+          cd /tmp/pagemark-*/ && /tmp/sdist-check/bin/python -m pytest -q -m "not integration"

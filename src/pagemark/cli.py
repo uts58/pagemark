@@ -10,7 +10,9 @@ try:
     from rich.console import Console
     from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 except ImportError as _exc:
-    raise SystemExit("pagemark CLI requires the [cli] extra: pip install pagemark[cli]") from _exc
+    raise SystemExit(
+        "pagemark CLI requires the [cli] extra: pip install 'pagemark[cli]'"
+    ) from _exc
 
 from pagemark.backends import resolve_api_key
 from pagemark.client import Pagemark

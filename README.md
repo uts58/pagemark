@@ -26,7 +26,7 @@ that page instead of aborting the whole conversion.
 
 ```bash
 pip install pagemark            # library only
-pip install pagemark[cli]       # with CLI
+pip install "pagemark[cli]"     # with CLI
 ```
 
 ## Quick start

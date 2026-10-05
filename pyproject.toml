@@ -49,7 +49,7 @@ Issues = "https://github.com/uts58/pagemark/issues"
 path = "src/pagemark/__init__.py"
 
 [tool.hatch.build.targets.sdist]
-only-include = ["src", "README.md", "LICENSE"]
+only-include = ["src", "tests", "README.md", "CHANGELOG.md", "LICENSE"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pagemark"]
@@ -75,6 +75,10 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
 ignore = ["B008"]
 
 [tool.mypy]
+# Type-check with the dev group or the cli extra, not --all-extras: the eval
+# extra pulls numpy, whose stubs use 3.12+ `type` statements that mypy rejects
+# under python_version = "3.10". A blocking syntax error in a dependency's stub
+# cannot be suppressed per-module, and the eval extra has no code of ours yet.
 strict = true
 python_version = "3.10"
 warn_return_any = true
